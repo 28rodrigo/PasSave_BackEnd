@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PasSave_BackEnd.Data;
 
 namespace PasSave_BackEnd.Migrations
 {
     [DbContext(typeof(PasSave_BackEndContext))]
-    partial class PasSave_BackEndContextModelSnapshot : ModelSnapshot
+    [Migration("20210202202738_Pass")]
+    partial class Pass
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -38,49 +40,12 @@ namespace PasSave_BackEnd.Migrations
                     b.Property<string>("Url")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("Username")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
-
                     b.ToTable("Password");
-                });
-
-            modelBuilder.Entity("PasSave_BackEnd.Models.User", b =>
-                {
-                    b.Property<string>("Username")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Pass")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Username");
-
-                    b.ToTable("User");
-                });
-
-            modelBuilder.Entity("PasSave_BackEnd.Models.Password", b =>
-                {
-                    b.HasOne("PasSave_BackEnd.Models.User", "User")
-                        .WithMany("Passwords")
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("PasSave_BackEnd.Models.User", b =>
-                {
-                    b.Navigation("Passwords");
                 });
 #pragma warning restore 612, 618
         }

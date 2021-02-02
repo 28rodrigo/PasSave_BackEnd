@@ -15,5 +15,6 @@ namespace PasSave_BackEnd.Data
         }
 
         public DbSet<PasSave_BackEnd.Models.Password> Password { get; set; }
+        public DbSet<PasSave_BackEnd.Models.User> User { get; set; }
     }
 }
