@@ -6,13 +6,10 @@ using System.Threading.Tasks;
 
 namespace PasSave_BackEnd.Models
 {
-    public class UserDTO
+    public class LoginDTO
     {
         [Required]
         public string Username { get; set; }
-
-        [Required]
-        public string Email { get; set; }
 
         [Required]
         public string Pass { get; set; }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.IO;
 
 
-namespace FoodWay.Auxiliar_Classes
+namespace PasSave_BackEnd.Auxiliar_Classes
 {
     public class AESEncryption
     {

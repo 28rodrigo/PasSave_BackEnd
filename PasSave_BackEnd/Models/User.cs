@@ -18,5 +18,7 @@ namespace PasSave_BackEnd.Models
         public string Pass { get; set; }
 
         public List<Password> Passwords { get; set; }
+
+        public bool EmailConfirmed { get; set; } = true;//alterar quando tiver web App
     }
 }

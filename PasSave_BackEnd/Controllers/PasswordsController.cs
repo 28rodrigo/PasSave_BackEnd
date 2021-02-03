@@ -2,18 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using FoodWay.Auxiliar_Classes;
+using PasSave_BackEnd.Auxiliar_Classes;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using PasSave_BackEnd.Data;
 using PasSave_BackEnd.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace PasSave_BackEnd.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class PasswordsController : ControllerBase
     {
         private readonly PasSave_BackEndContext _context;
