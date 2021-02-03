@@ -9,7 +9,7 @@
 *.user
 *.userosscache
 *.sln.docstates
-appsettings.json
+
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
@@ -224,6 +224,7 @@ ClientBin/
 *.pfx
 *.publishsettings
 orleans.codegen.cs
+appsettings.json
 
 # Including strong name files can present a security risk
 # (https://github.com/github/gitignore/pull/2483#issue-259490424)
