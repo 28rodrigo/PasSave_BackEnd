@@ -46,7 +46,7 @@ namespace PasSave_BackEnd.Auxiliar_Classes
                     }
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 return string.Empty;
             }
@@ -87,7 +87,7 @@ namespace PasSave_BackEnd.Auxiliar_Classes
                     }
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 return string.Empty;
             }

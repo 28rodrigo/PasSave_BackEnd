@@ -16,6 +16,7 @@ using PasSave_BackEnd.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Npgsql;
 
 namespace PasSave_BackEnd
 {
@@ -37,9 +38,9 @@ namespace PasSave_BackEnd
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "PasSave_BackEnd", Version = "v1" });
             });
-
-            services.AddDbContext<PasSave_BackEndContext>(options =>
-                    options.UseSqlServer(Configuration.GetConnectionString("PasSave_BackEndContext")));
+            services.AddEntityFrameworkNpgsql().AddDbContext<PasSave_BackEndContext>(op =>
+                op.UseNpgsql(new NpgsqlConnection(Configuration.GetConnectionString("MyWebApiConection"))));
+            
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
@@ -72,6 +73,7 @@ namespace PasSave_BackEnd
             }
 
             app.UseHttpsRedirection();
+            app.UseSwagger();
             //app.UseDefaultFiles();
             //app.UseStaticFiles();
             app.UseAuthentication();

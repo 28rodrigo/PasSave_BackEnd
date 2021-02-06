@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using PasSave_BackEnd.Data;
 using PasSave_BackEnd.Models;
 using Microsoft.AspNetCore.Authorization;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace PasSave_BackEnd.Controllers
 {
@@ -28,9 +29,20 @@ namespace PasSave_BackEnd.Controllers
 
         // GET: api/Passwords
         [HttpGet]
+
         public async Task<ActionResult<IEnumerable<PasswordDTO>>> GetPassword()
-        {   
-            return await _context.Password.Select(x => DecryptPassword(x,_Key)).Select(x => ItemToDTO(x)).ToListAsync();
+        {
+            var currentUser = HttpContext.User;
+            string user = null;
+            if (currentUser.HasClaim(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"))
+            {
+               user= currentUser.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier").Value;
+            }
+            else
+            {
+                return Unauthorized();
+            }
+            return await _context.Password.Where(x => x.UserId == user).Select(x => DecryptPassword(x,_Key)).Select(x => ItemToDTO(x)).ToListAsync();
 
         }
 
@@ -38,9 +50,23 @@ namespace PasSave_BackEnd.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<PasswordDTO>> GetPassword(int id)
         {
+            var currentUser = HttpContext.User;
             var password = await _context.Password.FindAsync(id);
 
             if (password == null)
+            {
+                return NotFound();
+            }
+            string user = null;
+            if (currentUser.HasClaim(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"))
+            {
+                user = currentUser.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier").Value;
+            }
+            else
+            {
+                return Unauthorized();
+            }
+            if(password.UserId!=user)
             {
                 return NotFound();
             }
@@ -53,14 +79,37 @@ namespace PasSave_BackEnd.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutPassword(int id, PasswordDTO password)
         {
+            var currentUser = HttpContext.User;
             if (password == null)
                 return Content("Body Error!");
+            var realpass = await _context.Password.FindAsync(id);
+            if(realpass==null)
+            {
+                return NotFound();
+            }
+            string user = null;
+            if (currentUser.HasClaim(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"))
+            {
+                user = currentUser.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier").Value;
+            }
+            else
+            {
+                return Unauthorized();
+            }
+            if(user!=realpass.UserId)
+            {
+                return Unauthorized();
+            }
             if (id != password.Id)
             {
                 return BadRequest();
             }
-            password = EncryptPasswordDTO(password,_Key);
-            _context.Entry(password).State = EntityState.Modified;
+            realpass.Nome = password.Nome;
+            realpass.Pass = password.Pass;
+            realpass.Url = password.Url;
+            realpass.Username = password.Username;
+            realpass = EncryptPassword(realpass,_Key);
+            _context.Entry(realpass).State = EntityState.Modified;
 
             try
             {
@@ -86,6 +135,17 @@ namespace PasSave_BackEnd.Controllers
         [HttpPost]
         public async Task<ActionResult<Password>> PostPassword(PasswordDTO passwordDTO)
         {
+            var currentUser = HttpContext.User;
+            string user = null;
+            if (currentUser.HasClaim(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"))
+            {
+                user = currentUser.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier").Value;
+            }
+            else
+            {
+                return Unauthorized();
+            }
+
             if (passwordDTO == null)
                 return Content("Body Error!");
             var password = new Password()
@@ -96,7 +156,7 @@ namespace PasSave_BackEnd.Controllers
                 Url = passwordDTO.Url,
                 Username = passwordDTO.Nome,
                 Pass = passwordDTO.Pass,
-                UserId=passwordDTO.UserId
+                UserId=user
 
             };
             password = EncryptPassword(password,_Key);
@@ -110,12 +170,25 @@ namespace PasSave_BackEnd.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePassword(int id)
         {
+            var currentUser = HttpContext.User;
+            string user = null;
+            if (currentUser.HasClaim(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"))
+            {
+                user = currentUser.Claims.FirstOrDefault(c => c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier").Value;
+            }
+            else
+            {
+                return Unauthorized();
+            }
             var password = await _context.Password.FindAsync(id);
             if (password == null)
             {
                 return NotFound();
             }
-
+            if(password.UserId!=user)
+            {
+                return Unauthorized();
+            }
             _context.Password.Remove(password);
             await _context.SaveChangesAsync();
 
@@ -134,7 +207,7 @@ namespace PasSave_BackEnd.Controllers
                 Url=password.Url,
                 Username=password.Username,
                 Pass=password.Pass,
-                UserId=password.UserId
+                
             
             };
         private static Password EncryptPassword(Password password, string _Key) =>
@@ -168,7 +241,7 @@ namespace PasSave_BackEnd.Controllers
                Url = AESEncryption.Encrypt(_Key, password.Url),
                Username = AESEncryption.Encrypt(_Key, password.Username),
                Pass = AESEncryption.Encrypt(_Key, password.Pass),
-               UserId = password.UserId
+               
            };
         private static PasswordDTO DecryptPasswordDTO(PasswordDTO password, string _Key) =>
           new PasswordDTO
@@ -178,7 +251,7 @@ namespace PasSave_BackEnd.Controllers
               Url = AESEncryption.Decrypt(_Key, password.Url),
               Username = AESEncryption.Decrypt(_Key, password.Username),
               Pass = AESEncryption.Decrypt(_Key, password.Pass),
-              UserId = password.UserId
+              
           };
     }
 }

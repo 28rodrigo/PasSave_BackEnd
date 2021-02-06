@@ -77,7 +77,7 @@ namespace PasSave_BackEnd.Controllers
             catch (Exception e)
             {
                 
-                return Content("Email not Sended!");
+                return Content("Email not Sended : \n"+e.Message);
             }
             
 
@@ -85,6 +85,7 @@ namespace PasSave_BackEnd.Controllers
         }
         [AllowAnonymous]
         [HttpPost]
+        [Route("/")]
         public async Task<IActionResult> Login([FromBody] LoginDTO u)
         {
             
@@ -132,28 +133,7 @@ namespace PasSave_BackEnd.Controllers
 
             return user;
         }
-        [HttpGet]
-        [Authorize]
-        public ActionResult<IEnumerable<string>> Get()
-        {
-            var currentUser = HttpContext.User;
-            int spendingTimeWithCompany = 0;
-
-            if (currentUser.HasClaim(c => c.Type == JwtRegisteredClaimNames.Email))
-            {
-                spendingTimeWithCompany = currentUser.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Email).Value.Length;
-            }
-
-            if (spendingTimeWithCompany > 10)
-            {
-                return new string[] { "High Time1", "High Time2", "High Time3", "High Time4", "High Time5" };
-            }
-            else
-            {
-                return new string[] { "value1", "value2", "value3", "value4", "value5" };
-            }
-        }
-
+        
         //recuperar
     }
 }
